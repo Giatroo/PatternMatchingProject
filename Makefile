@@ -1,8 +1,8 @@
 CC=g++
 FLAGS= -Wall -g -O0
 
-all : main
+all : pattern_matching
 	@echo "Compilado corretamente"
 
-main : pattern_matching.cpp
+pattern_matching : pattern_matching.cpp
 	${CC} ${FLAGS} $^ -o $@
