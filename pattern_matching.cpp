@@ -22,7 +22,7 @@ typedef enum {
   WHITE
 } Colour;
 
-const int N = 112345678;
+const int N = 1123456;
 string text, pattern;
 Colour text_colour[N];
 Colour pattern_colour[N];
@@ -120,6 +120,8 @@ void PrintStrings(int text_index, int pattern_index) {
 
 int bruteforce();
 int kmp();
+int dfa[N][256];
+int kmpmatrix();
 int boyer_moore();
 int rabin_karp();
 
@@ -165,7 +167,7 @@ int main(int argc, char *argv[]) {
   // for (int i = 0; i < pattern.size(); i++)
   // printf("'%c' %d\n", pattern[i], pattern[i]);
 
-  bruteforce();
+  kmpmatrix();
 
   return 0;
 }
@@ -197,6 +199,52 @@ int bruteforce() {
     ColourText(i, BLUE);
     ColourPattern(j, BLUE);
     PrintStrings(i, j);
+  }
+
+  if (j == M)
+    return i - M;
+  else
+    return -1;
+}
+
+// Inicializing the dfa matrix used in the method kmpmatrix()
+void initmatrix() {
+  int preflen = 0;
+  int c;
+  long unsigned int j;
+  for (c = 0; c < 256; c++)
+    dfa[c][0] = 0;
+  dfa[(int)pattern[0]][0] = 1;
+
+  for (j = 1; j < pattern.size(); j++) {
+    for (c = 0; c < 256; c++)
+      dfa[j][c] = dfa[preflen][c];
+    dfa[(int)pattern[j]][j] = j + 1;
+    preflen = dfa[(int)pattern[j]][preflen];
+  }
+}
+int kmpmatrix() {
+  initmatrix();
+  int i, j, M, N;
+  M = pattern.size();
+  N = text.size();
+
+  for (i = 0, j = 0; j < M && i < N; i++) {
+    ColourText(i, BLUE);
+    ColourPattern(j, BLUE);
+    PrintStrings(i, j);
+    if (dfa[(int)text[i]][j] == j + 1) {
+      ColourText(i, GREEN);
+      ColourPattern(j, GREEN);
+      PrintStrings(i, j);
+    } else {
+      ColourText(i, RED);
+      ColourPattern(j, RED);
+      PrintStrings(i, j);
+      ResetTextColour();
+      ResetPatternColour();
+    }
+    j = dfa[(int)text[i]][j];
   }
 
   if (j == M)
